@@ -7,7 +7,7 @@ import AuthButtons from "./AuthButtons";
 import { User } from "firebase/auth";
 
 import Icons from "./Icons";
-import UserMenu from "./ProfileMenu/MenuWrapper";
+import MenuWrapper from "./ProfileMenu/MenuWrapper";
 
 type RightContentProps = {
   user?: User | null;
@@ -19,7 +19,7 @@ const RightContent: React.FC<RightContentProps> = ({ user }) => {
       <AuthModel />
       <Flex justify="center" align="center">
         {user ? <Icons /> : <AuthButtons />}
-        <UserMenu user={user} />
+        <MenuWrapper user={user} />
       </Flex>
     </>
   );
