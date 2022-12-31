@@ -8,10 +8,9 @@ import {
   Box,
   MenuList,
   Text,
-  MenuItem,
 } from "@chakra-ui/react";
 import { TiHome } from "react-icons/ti";
-import { CgProfile } from "react-icons/cg";
+import Communities from "./Communities";
 
 const Directory: React.FC = () => {
   return (
@@ -46,30 +45,7 @@ const Directory: React.FC = () => {
       </MenuButton>
 
       <MenuList width="100%">
-        <>
-          <MenuItem
-            width="100%"
-            fontSize="10pt"
-            fontWeight={700}
-            _hover={{ bg: "blue.500", color: "white" }}
-          >
-            <Flex alignItems="center">
-              <Icon fontSize={20} mr={2} as={CgProfile} />
-              Profile
-            </Flex>
-          </MenuItem>
-          <MenuItem
-            width="100%"
-            fontSize="10pt"
-            fontWeight={700}
-            _hover={{ bg: "blue.500", color: "white" }}
-          >
-            <Flex alignItems="center">
-              <Icon fontSize={20} mr={2} as={CgProfile} />
-              Communities
-            </Flex>
-          </MenuItem>
-        </>
+        <Communities />
       </MenuList>
     </Menu>
   );
