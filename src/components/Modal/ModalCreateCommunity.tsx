@@ -20,6 +20,17 @@ import React, { useState } from "react";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
 
+import {
+  doc,
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+import { auth, firestore } from "../../firebase/clientApp";
+import { useRouter } from "next/router";
+import { useAuthState } from "react-firebase-hooks/auth";
+
 type CreateCommunityModalProps = {
   isOpen: boolean;
   handleClose: () => void;
@@ -34,6 +45,9 @@ const CreateCommunityModel: React.FC<CreateCommunityModalProps> = ({
   const [charsRemaining, setCharsRemaining] = useState(21);
   const [communityType, setCommunityType] = useState("public");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const [user] = useAuthState(auth);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value.length > 21) return;
@@ -48,6 +62,41 @@ const CreateCommunityModel: React.FC<CreateCommunityModalProps> = ({
     } = event;
     if (name === communityType) return;
     setCommunityType(name);
+  };
+
+  const handleCreateCommunity = async () => {
+    if (nameError) setNameError("");
+    const format = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/;
+
+    if (format.test(name) || name.length < 3) {
+      return setNameError(
+        "Community names must be between 3–21 characters, and can only contain letters, numbers, or underscores."
+      );
+    }
+
+    setLoading(true);
+    try {
+      // Create community document and communitySnippet subcollection document on user
+      const communityDocRef = doc(firestore, "communities", name);
+      const communityDoc = await getDoc(communityDocRef);
+
+      if (communityDoc.exists()) {
+        throw new Error(`Sorry, r/${name} is taken. Try another.`);
+      }
+
+      // Create Community
+      await setDoc(communityDocRef, {
+        creatorId: user?.uid,
+        createdAt: serverTimestamp(),
+        numberOfMembers: 1,
+        privacyType: "public",
+      });
+    } catch (error: any) {
+      setNameError(error.message);
+    }
+    handleClose();
+    // router.push(`r/${name}`);
+    setLoading(false);
   };
 
   return (
@@ -171,7 +220,12 @@ const CreateCommunityModel: React.FC<CreateCommunityModalProps> = ({
           >
             Cancel
           </Button>
-          <Button variant="solid" height="30px">
+          <Button
+            variant="solid"
+            height="30px"
+            onClick={handleCreateCommunity}
+            isLoading={loading}
+          >
             Create Community
           </Button>
         </ModalFooter>
